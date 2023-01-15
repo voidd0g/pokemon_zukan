@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
 import 'package:pokemon_zukan/viewmodels/home.viewmodel.dart';
 
@@ -29,8 +30,10 @@ class HomeView extends ConsumerWidget {
         backgroundColor: Colors.blue.shade700,
       ),
       body: states.isLoading
-          ? const Center(
-              child: Icon(Icons.circle_outlined),
+          ? Center(
+              child: SpinKitDancingSquare(
+                color: Colors.blue.shade700,
+              ),
             )
           : Center(
               child: Container(

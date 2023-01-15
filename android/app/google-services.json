@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "489163314948",
+    "project_id": "pokemon-zukan-28ba3",
+    "storage_bucket": "pokemon-zukan-28ba3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489163314948:android:30481fc0b4a658004aa251",
+        "android_client_info": {
+          "package_name": "com.example.pokemon_zukan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489163314948-1udlppeo0k0p0ro0qhldgvin4rqg6oou.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3ZT1VSHjgUYaGcmiv94jS54C4A_brPR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489163314948-1udlppeo0k0p0ro0qhldgvin4rqg6oou.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
