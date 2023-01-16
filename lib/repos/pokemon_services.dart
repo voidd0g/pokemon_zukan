@@ -50,6 +50,27 @@ class PokemonServices {
                       "type2": null
                     }
                   ]
+              },
+              {
+                "basic_name": "パモ",
+                "pokemons": 
+                  [
+                    {
+                      "name": "パモ",
+                      "type1": "electric",
+                      "type2": null
+                    },
+                    {
+                      "name": "パモット",
+                      "type1": "electric",
+                      "type2": "fighting"
+                    },
+                    {
+                      "name": "パーモット",
+                      "type1": "electric",
+                      "type2": "fighting"
+                    }
+                  ]
               }
             ]
         }''')),

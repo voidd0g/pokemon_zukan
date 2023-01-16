@@ -6,8 +6,8 @@ import 'package:pokemon_zukan/firebase_options.dart';
 class FirebaseServices {
   static final FirebaseServices _instance = FirebaseServices._();
   static FirebaseServices get instance => _instance;
-  final FirebaseAuth _authInstance = FirebaseAuth.instance;
-  final FirebaseFirestore _firestoreInstance = FirebaseFirestore.instance;
+  FirebaseAuth? _authInstance;
+  FirebaseFirestore? _firestoreInstance;
   bool _isInitialized = false;
 
   FirebaseServices._();
@@ -17,9 +17,11 @@ class FirebaseServices {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      _authInstance = FirebaseAuth.instance;
+      _firestoreInstance = FirebaseFirestore.instance;
       _isInitialized = true;
     }
-    return _authInstance;
+    return _authInstance!;
   }
 
   Future<FirebaseFirestore> getFirestoreInstance() async {
@@ -27,8 +29,10 @@ class FirebaseServices {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      _authInstance = FirebaseAuth.instance;
+      _firestoreInstance = FirebaseFirestore.instance;
       _isInitialized = true;
     }
-    return _firestoreInstance;
+    return _firestoreInstance!;
   }
 }

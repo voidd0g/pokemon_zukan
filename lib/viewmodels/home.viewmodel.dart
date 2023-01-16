@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_zukan/repos/pokemon_services.dart';
-import 'package:pokemon_zukan/states/home.state.dart';
+import 'package:pokemon_zukan/viewmodels/states/home.state.dart';
 
 final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) => HomeNotifier());
 
