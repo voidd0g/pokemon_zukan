@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pokemon_zukan/constants/pokemon_type.dart';
 
 class HomeStateElement {
@@ -65,11 +66,13 @@ class HomeState {
   final List<HomeStateGroup> groups;
   final bool isInitialized;
   final bool isInitializing;
+  final User? user;
 
   const HomeState({
     required this.groups,
     required this.isInitialized,
     required this.isInitializing,
+    this.user,
   });
 
   HomeState updateAt(int index, {bool decrement = false}) {
@@ -79,6 +82,7 @@ class HomeState {
       groups: newGroups,
       isInitialized: isInitialized,
       isInitializing: isInitializing,
+      user: user,
     );
   }
 }

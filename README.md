@@ -13,7 +13,7 @@ dart pub global activate flutterfire_cli
 How about project configuration:
 ```
 flutterfire configure
-firebase init (For hosting)
+firebase init (For hosting & firestore)
 ```
 
 ## Try this app

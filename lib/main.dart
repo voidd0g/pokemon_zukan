@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_zukan/constants/routes.dart';
 import 'package:pokemon_zukan/views/home.view.dart';
+import 'package:pokemon_zukan/views/login.view.dart';
 
 void main() {
   runApp(const ProviderScope(
@@ -17,8 +18,9 @@ class PokemonZukan extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ポケモンずかん',
-      initialRoute: Routes.home,
+      initialRoute: Routes.login,
       routes: {
+        Routes.login: (context) => const LoginView(),
         Routes.home: (context) => const HomeView(),
       },
     );
