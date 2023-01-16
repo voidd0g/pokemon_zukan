@@ -45,7 +45,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (res.isSuccess) {
       await Future.delayed(Duration.zero, () {
         state = HomeState(
-          groups: res.evoGroups.groups
+          groups: res.evoGroups!.groups
               .map((x) => HomeStateGroup(
                     pokemons: x.pokemons
                         .map((y) => HomeStateElement(
@@ -54,7 +54,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                               type2: y.type2,
                             ))
                         .toList(),
-                    basicName: x.basicName,
+                    basicName: x.groupID,
                   ))
               .toList(),
           isInitialized: true,

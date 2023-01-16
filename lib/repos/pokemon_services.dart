@@ -1,7 +1,8 @@
-import 'dart:convert';
-import 'dart:math';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pokemon_zukan/models/pokemon.dart';
+import 'package:pokemon_zukan/repos/firebase_services.dart';
+import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
 
 class PokemonServices {
   static final PokemonServices _instance = PokemonServices._();
@@ -12,69 +13,49 @@ class PokemonServices {
 
   Future<PokemonServicesResult> getPokemonEvoGroups({bool force = false}) async {
     if (force || _result == null) {
-      await Future.delayed(const Duration(milliseconds: 200), () {});
-      _result = PokemonServicesResult(
-        Random().nextInt(10) == 0,
-        EvoGroups.fromJson(jsonDecode('''
-        {
-          "groups": 
-            [
-              {
-                "basic_name": "コライドン",
-                "pokemons": 
-                  [
-                    {
-                      "name": "コライドン",
-                      "type1": "dragon",
-                      "type2": "fighting"
-                    }
-                  ]
-              },
-              {
-                "basic_name": "ピチュー",
-                "pokemons": 
-                  [
-                    {
-                      "name": "ピチュー",
-                      "type1": "electric",
-                      "type2": null
-                    },
-                    {
-                      "name": "ピカチュウ",
-                      "type1": "electric",
-                      "type2": null
-                    },
-                    {
-                      "name": "ライチュウ",
-                      "type1": "electric",
-                      "type2": null
-                    }
-                  ]
-              },
-              {
-                "basic_name": "パモ",
-                "pokemons": 
-                  [
-                    {
-                      "name": "パモ",
-                      "type1": "electric",
-                      "type2": null
-                    },
-                    {
-                      "name": "パモット",
-                      "type1": "electric",
-                      "type2": "fighting"
-                    },
-                    {
-                      "name": "パーモット",
-                      "type1": "electric",
-                      "type2": "fighting"
-                    }
-                  ]
-              }
-            ]
-        }''')),
-      );
+      try {
+        List<PokemonEvoGroup> groups = [];
+        FirebaseFirestore fs = await FirebaseServices.instance.getFirestoreInstance();
+        QuerySnapshot<Map<String, dynamic>> groupsRaw = await fs.collection('groups').get();
+        List<QueryDocumentSnapshot<Map<String, dynamic>>> documentsRaw = groupsRaw.docs;
+        for (var doc in documentsRaw) {
+          List<Pokemon> pokemons = [];
+          QuerySnapshot<Map<String, dynamic>> pokemonsRaw = await doc.reference.collection('pokemons').get();
+          List<QueryDocumentSnapshot<Map<String, dynamic>>> pokDocsRaw = pokemonsRaw.docs;
+          for (var pokDoc in pokDocsRaw) {
+            pokemons.add(
+              Pokemon(
+                name: pokDoc.get('name'),
+                type1: pokemonTypeFromString(pokDoc.get('type1')),
+                type2: pokDoc.get('type2') == null ? null : pokemonTypeFromString(pokDoc.get('type2')),
+                stage: pokDoc.get('stage'),
+                form: pokDoc.get('form'),
+              ),
+            );
+          }
+          pokemons.sort((l, r) => l.stage != r.stage ? l.stage - r.stage : l.form - r.form);
+          groups.add(
+            PokemonEvoGroup(
+              pokemons: pokemons,
+              groupID: doc.get('id'),
+            ),
+          );
+        }
+        _result = PokemonServicesResult(
+          isSuccess: true,
+          evoGroups: EvoGroups(
+            groups: groups,
+          ),
+        );
+      } catch (e) {
+        _result = PokemonServicesResult(
+          isSuccess: false,
+          failMessage: e.toString(),
+        );
+        if (kDebugMode) {
+          print(e);
+        }
+      }
     }
     return _result!;
   }
@@ -82,7 +63,8 @@ class PokemonServices {
 
 class PokemonServicesResult {
   final bool isSuccess;
-  final EvoGroups evoGroups;
+  final String? failMessage;
+  final EvoGroups? evoGroups;
 
-  const PokemonServicesResult(this.isSuccess, this.evoGroups);
+  const PokemonServicesResult({required this.isSuccess, this.failMessage, this.evoGroups});
 }
