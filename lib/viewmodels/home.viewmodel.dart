@@ -5,7 +5,12 @@ import 'package:pokemon_zukan/states/home.state.dart';
 final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) => HomeNotifier());
 
 class HomeNotifier extends StateNotifier<HomeState> {
-  HomeNotifier() : super(const HomeState([], true));
+  HomeNotifier()
+      : super(const HomeState(
+          groups: [],
+          isInitialized: false,
+          isInitializing: false,
+        ));
 
   void revEvolveAt(int index) {
     if (0 <= index && index < state.groups.length) {
@@ -25,12 +30,45 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> getPokemons() async {
-    PokemonServicesResult res = await PokemonServices.getPokemonEvoGroups();
+  Future<void> getPokemons({bool force = false}) async {
+    if (state.isInitializing) {
+      return;
+    }
+    await Future.delayed(Duration.zero, () {
+      state = const HomeState(
+        groups: [],
+        isInitialized: false,
+        isInitializing: true,
+      );
+    });
+    PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(force: force);
     if (res.isSuccess) {
-      state = HomeState(res.evoGroups.groups.map((x) => HomeStateGroup(x.pokemons.map((y) => HomeStateElement(name: y.name, type1: y.type1, type2: y.type2)).toList())).toList(), false);
+      await Future.delayed(Duration.zero, () {
+        state = HomeState(
+          groups: res.evoGroups.groups
+              .map((x) => HomeStateGroup(
+                    pokemons: x.pokemons
+                        .map((y) => HomeStateElement(
+                              name: y.name,
+                              type1: y.type1,
+                              type2: y.type2,
+                            ))
+                        .toList(),
+                    basicName: x.basicName,
+                  ))
+              .toList(),
+          isInitialized: true,
+          isInitializing: false,
+        );
+      });
     } else {
-      state = const HomeState([], false);
+      await Future.delayed(Duration.zero, () {
+        state = const HomeState(
+          groups: [],
+          isInitialized: false,
+          isInitializing: false,
+        );
+      });
     }
   }
 }

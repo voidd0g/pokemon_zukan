@@ -27,16 +27,25 @@ class HomeStateElement {
 
 class HomeStateGroup {
   final List<HomeStateElement> pokemons;
+  final String basicName;
   final int index;
 
-  const HomeStateGroup(this.pokemons, {this.index = 0});
+  const HomeStateGroup({
+    required this.pokemons,
+    required this.basicName,
+    this.index = 0,
+  });
 
   HomeStateGroup increment() {
     int newIndex = index + 1;
     if (newIndex == pokemons.length) {
       newIndex = 0;
     }
-    return HomeStateGroup(pokemons, index: newIndex);
+    return HomeStateGroup(
+      pokemons: pokemons,
+      basicName: basicName,
+      index: newIndex,
+    );
   }
 
   HomeStateGroup decrement() {
@@ -44,19 +53,32 @@ class HomeStateGroup {
     if (newIndex == -1) {
       newIndex = pokemons.length - 1;
     }
-    return HomeStateGroup(pokemons, index: newIndex);
+    return HomeStateGroup(
+      pokemons: pokemons,
+      basicName: basicName,
+      index: newIndex,
+    );
   }
 }
 
 class HomeState {
   final List<HomeStateGroup> groups;
-  final bool isLoading;
+  final bool isInitialized;
+  final bool isInitializing;
 
-  const HomeState(this.groups, this.isLoading);
+  const HomeState({
+    required this.groups,
+    required this.isInitialized,
+    required this.isInitializing,
+  });
 
   HomeState updateAt(int index, {bool decrement = false}) {
     List<HomeStateGroup> newGroups = [...groups];
     newGroups[index] = decrement ? newGroups[index].decrement() : newGroups[index].increment();
-    return HomeState(newGroups, isLoading);
+    return HomeState(
+      groups: newGroups,
+      isInitialized: isInitialized,
+      isInitializing: isInitializing,
+    );
   }
 }

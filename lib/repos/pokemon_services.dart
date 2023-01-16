@@ -1,17 +1,26 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:pokemon_zukan/models/pokemon.dart';
 
 class PokemonServices {
-  static Future<PokemonServicesResult> getPokemonEvoGroups() async {
-    await Future.delayed(const Duration(milliseconds: 2000), () {});
-    return PokemonServicesResult(
-      true,
-      EvoGroups.fromJson(jsonDecode('''
+  static final PokemonServices _instance = PokemonServices._();
+  static PokemonServices get instance => _instance;
+  PokemonServicesResult? _result;
+
+  PokemonServices._();
+
+  Future<PokemonServicesResult> getPokemonEvoGroups({bool force = false}) async {
+    if (force || _result == null) {
+      await Future.delayed(const Duration(milliseconds: 200), () {});
+      _result = PokemonServicesResult(
+        Random().nextInt(10) == 0,
+        EvoGroups.fromJson(jsonDecode('''
         {
           "groups": 
             [
               {
+                "basic_name": "コライドン",
                 "pokemons": 
                   [
                     {
@@ -22,6 +31,7 @@ class PokemonServices {
                   ]
               },
               {
+                "basic_name": "ピチュー",
                 "pokemons": 
                   [
                     {
@@ -43,7 +53,9 @@ class PokemonServices {
               }
             ]
         }''')),
-    );
+      );
+    }
+    return _result!;
   }
 }
 

@@ -5,7 +5,7 @@ import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
 
 Pokemon? pokemonFromJson(String str) => Pokemon.fromJson(json.decode(str));
 
-String pokemonToJson(Pokemon data) => json.encode(data!.toJson());
+String pokemonToJson(Pokemon data) => json.encode(data.toJson());
 
 class Pokemon {
   Pokemon({
@@ -18,7 +18,11 @@ class Pokemon {
   PokemonType type1;
   PokemonType? type2;
 
-  factory Pokemon.fromJson(Map<String, dynamic> json) => Pokemon(name: json["name"] as String, type1: pokemonTypeFromString(json["type1"] as String), type2: json["type2"] == null ? null : pokemonTypeFromString(json["type2"] as String));
+  factory Pokemon.fromJson(Map<String, dynamic> json) => Pokemon(
+        name: json["name"] as String,
+        type1: pokemonTypeFromString(json["type1"] as String),
+        type2: json["type2"] == null ? null : pokemonTypeFromString(json["type2"] as String),
+      );
 
   Map<String, dynamic> toJson() => {
         "name": name,
@@ -30,14 +34,20 @@ class Pokemon {
 class PokemonEvoGroup {
   PokemonEvoGroup({
     required this.pokemons,
+    required this.basicName,
   });
 
   List<Pokemon> pokemons;
+  String basicName;
 
-  factory PokemonEvoGroup.fromJson(Map<String, dynamic> json) => PokemonEvoGroup(pokemons: List<Pokemon>.from((json["pokemons"]!).map((x) => Pokemon.fromJson(x as Map<String, dynamic>))));
+  factory PokemonEvoGroup.fromJson(Map<String, dynamic> json) => PokemonEvoGroup(
+        pokemons: List<Pokemon>.from((json["pokemons"]!).map((x) => Pokemon.fromJson(x as Map<String, dynamic>))),
+        basicName: json["basic_name"] as String,
+      );
 
   Map<String, dynamic> toJson() => {
         "pokemons": List<Map<String, dynamic>>.from(pokemons.map((x) => x.toJson())),
+        "basic_name": basicName,
       };
 }
 
@@ -48,7 +58,9 @@ class EvoGroups {
 
   List<PokemonEvoGroup> groups;
 
-  factory EvoGroups.fromJson(Map<String, dynamic> json) => EvoGroups(groups: List<PokemonEvoGroup>.from((json["groups"]!).map((x) => PokemonEvoGroup.fromJson(x as Map<String, dynamic>))));
+  factory EvoGroups.fromJson(Map<String, dynamic> json) => EvoGroups(
+        groups: List<PokemonEvoGroup>.from((json["groups"]!).map((x) => PokemonEvoGroup.fromJson(x as Map<String, dynamic>))),
+      );
 
   Map<String, dynamic> toJson() => {
         "groups": List<Map<String, dynamic>>.from(groups.map((x) => x.toJson())),

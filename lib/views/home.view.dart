@@ -12,8 +12,8 @@ class HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final states = ref.watch(homeProvider);
-    if (states.groups.isEmpty) {
-      ref.read(homeProvider.notifier).getPokemons();
+    if (!states.isInitialized) {
+      ref.read(homeProvider.notifier).getPokemons(force: true);
     }
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +29,7 @@ class HomeView extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.blue.shade700,
       ),
-      body: states.isLoading
+      body: !states.isInitialized
           ? Center(
               child: SpinKitDancingSquare(
                 color: Colors.blue.shade700,
@@ -90,9 +90,11 @@ class HomeView extends ConsumerWidget {
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 20.0,
-                                  ),
+                                  entry.value.pokemons[entry.value.index].type2 != null
+                                      ? const SizedBox(
+                                          width: 20.0,
+                                        )
+                                      : const SizedBox.shrink(),
                                   entry.value.pokemons[entry.value.index].type2 != null
                                       ? Text(
                                           pokemonTypeToString(entry.value.pokemons[entry.value.index].type2!),
@@ -104,9 +106,11 @@ class HomeView extends ConsumerWidget {
                                           ),
                                         )
                                       : const SizedBox.shrink(),
-                                  const SizedBox(
-                                    width: 20.0,
-                                  ),
+                                  entry.value.pokemons.length > 1
+                                      ? const SizedBox(
+                                          width: 20.0,
+                                        )
+                                      : const SizedBox.shrink(),
                                   entry.value.pokemons.length > 1
                                       ? ElevatedButton(
                                           onPressed: () {
@@ -127,6 +131,14 @@ class HomeView extends ConsumerWidget {
                       .toList(),
                 ),
               ),
+            ),
+      floatingActionButton: !states.isInitialized
+          ? const SizedBox.shrink()
+          : FloatingActionButton(
+              onPressed: () async {
+                ref.read(homeProvider.notifier).getPokemons(force: true);
+              },
+              child: const Icon(Icons.refresh),
             ),
     );
   }
