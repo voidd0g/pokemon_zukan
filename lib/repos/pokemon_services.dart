@@ -30,6 +30,7 @@ class PokemonServices {
                 type2: pokDoc.get('type2') == null ? null : pokemonTypeFromString(pokDoc.get('type2')),
                 stage: pokDoc.get('stage'),
                 form: pokDoc.get('form'),
+                imgPath: pokDoc.get('img_path'),
               ),
             );
           }

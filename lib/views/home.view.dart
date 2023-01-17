@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -62,85 +63,92 @@ class HomeView extends ConsumerWidget {
                         .map((entry) => Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Card(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                child: Column(
                                   children: [
-                                    const SizedBox(
-                                      height: 50.0,
-                                    ),
-                                    entry.value.pokemons.length > 1
-                                        ? ElevatedButton(
-                                            onPressed: () {
-                                              ref.read(homeProvider.notifier).revEvolveAt(entry.key);
-                                            },
-                                            style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
-                                              shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                                                  )),
-                                            ),
-                                            child: const Icon(Icons.navigate_before))
-                                        : const SizedBox.shrink(),
-                                    entry.value.pokemons.length > 1
-                                        ? const SizedBox(
-                                            width: 20.0,
-                                          )
-                                        : const SizedBox.shrink(),
-                                    Text(
-                                      entry.value.pokemons[entry.value.index].name,
-                                      style: TextStyle(
-                                        color: Colors.blue.shade800,
-                                        fontFamily: 'MPLUSRounded1c',
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.normal,
+                                    SizedBox(
+                                      width: 300,
+                                      height: 300,
+                                      child: CachedNetworkImage(
+                                        imageUrl: 'https://zukan.pokemon.co.jp/zukan-api/up/images/index/${entry.value.pokemons[entry.value.index].imgPath}.png',
+                                        placeholder: (context, url) => const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 20.0,
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          entry.value.pokemons[entry.value.index].name,
+                                          style: TextStyle(
+                                            color: Colors.blue.shade800,
+                                            fontFamily: 'MPLUSRounded1c',
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 20.0,
+                                        ),
+                                        Text(
+                                          pokemonTypeToString(entry.value.pokemons[entry.value.index].type1),
+                                          style: TextStyle(
+                                            color: Colors.blue.shade800,
+                                            fontFamily: 'MPLUSRounded1c',
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        entry.value.pokemons[entry.value.index].type2 != null
+                                            ? const SizedBox(
+                                                width: 20.0,
+                                              )
+                                            : const SizedBox.shrink(),
+                                        entry.value.pokemons[entry.value.index].type2 != null
+                                            ? Text(
+                                                pokemonTypeToString(entry.value.pokemons[entry.value.index].type2!),
+                                                style: TextStyle(
+                                                  color: Colors.blue.shade800,
+                                                  fontFamily: 'MPLUSRounded1c',
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ],
                                     ),
-                                    Text(
-                                      pokemonTypeToString(entry.value.pokemons[entry.value.index].type1),
-                                      style: TextStyle(
-                                        color: Colors.blue.shade800,
-                                        fontFamily: 'MPLUSRounded1c',
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    entry.value.pokemons[entry.value.index].type2 != null
-                                        ? const SizedBox(
-                                            width: 20.0,
-                                          )
-                                        : const SizedBox.shrink(),
-                                    entry.value.pokemons[entry.value.index].type2 != null
-                                        ? Text(
-                                            pokemonTypeToString(entry.value.pokemons[entry.value.index].type2!),
-                                            style: TextStyle(
-                                              color: Colors.blue.shade800,
-                                              fontFamily: 'MPLUSRounded1c',
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
                                     entry.value.pokemons.length > 1
-                                        ? const SizedBox(
-                                            width: 20.0,
+                                        ? Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    ref.read(homeProvider.notifier).revEvolveAt(entry.key);
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
+                                                    shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                                                        )),
+                                                  ),
+                                                  child: const Icon(Icons.navigate_before)),
+                                              const SizedBox(
+                                                width: 20.0,
+                                              ),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    ref.read(homeProvider.notifier).evolveAt(entry.key);
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
+                                                    shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.all(Radius.circular(100)),
+                                                        )),
+                                                  ),
+                                                  child: const Icon(Icons.navigate_next)),
+                                            ],
                                           )
                                         : const SizedBox.shrink(),
-                                    entry.value.pokemons.length > 1
-                                        ? ElevatedButton(
-                                            onPressed: () {
-                                              ref.read(homeProvider.notifier).evolveAt(entry.key);
-                                            },
-                                            style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
-                                              shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                                                  )),
-                                            ),
-                                            child: const Icon(Icons.navigate_next))
-                                        : const SizedBox.shrink()
                                   ],
                                 ),
                               ),

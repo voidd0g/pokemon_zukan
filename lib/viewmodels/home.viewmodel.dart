@@ -69,6 +69,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 name: y.name,
                                 type1: y.type1,
                                 type2: y.type2,
+                                imgPath: y.imgPath,
                               ))
                           .toList(),
                       basicName: x.groupID,

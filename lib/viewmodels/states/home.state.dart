@@ -5,23 +5,26 @@ class HomeStateElement {
   final String name;
   final PokemonType type1;
   final PokemonType? type2;
+  final String imgPath;
 
   const HomeStateElement({
     required this.name,
     required this.type1,
     this.type2,
+    required this.imgPath,
   });
 
   HomeStateElement copyFrom({
     String? newName,
     PokemonType? newType1,
     PokemonType? newType2,
-    bool? newInEvoGroup,
+    String? newImgPath,
   }) {
     return HomeStateElement(
       name: newName ?? name,
       type1: newType1 ?? type1,
       type2: newType2 ?? type2,
+      imgPath: newImgPath ?? imgPath,
     );
   }
 }
