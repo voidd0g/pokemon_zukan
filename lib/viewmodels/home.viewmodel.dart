@@ -4,7 +4,7 @@ import 'package:pokemon_zukan/repos/firebase_services.dart';
 import 'package:pokemon_zukan/repos/pokemon_services.dart';
 import 'package:pokemon_zukan/viewmodels/states/home.state.dart';
 
-final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) => HomeNotifier());
+final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) => HomeNotifier());
 
 class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier()
@@ -12,6 +12,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           groups: [],
           isInitialized: false,
           isInitializing: false,
+          user: null,
           isMoreLoading: false,
           noMoreAvailable: false,
         ));
@@ -38,68 +39,60 @@ class HomeNotifier extends StateNotifier<HomeState> {
     await FirebaseServices.instance.signOutWithGoogle();
   }
 
+  Future<bool> isUserLoggedIn() async {
+    User? user = (await FirebaseServices.instance.getAuthInstance()).currentUser;
+    return user != null;
+  }
+
   Future<void> initialPokemons() async {
     if (state.isInitializing) {
       return;
     }
-    await Future.delayed(Duration.zero, () {
+    await Future.delayed(Duration.zero, () async {
       state = HomeState(
         groups: [],
         isInitialized: false,
         isInitializing: true,
-        user: state.user,
+        user: (await FirebaseServices.instance.getAuthInstance()).currentUser,
         isMoreLoading: false,
         noMoreAvailable: false,
       );
     });
-    User? user = (await FirebaseServices.instance.getAuthInstance()).currentUser;
-    if (user != null) {
-      await Future.delayed(Duration.zero, () {
+    PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(groupAfter: null);
+    if (res.isSuccess) {
+      await Future.delayed(Duration.zero, () async {
+        state = HomeState(
+          groups: res.evoGroups!.groups
+              .map((x) => HomeStateGroup(
+                    pokemons: x.pokemons
+                        .map((y) => HomeStateElement(
+                              name: y.name,
+                              type1: y.type1,
+                              type2: y.type2,
+                              imgPath: y.imgPath,
+                            ))
+                        .toList(),
+                    groupId: x.groupId,
+                  ))
+              .toList(),
+          isInitialized: true,
+          isInitializing: false,
+          user: state.user,
+          isMoreLoading: false,
+          noMoreAvailable: res.evoGroups!.groups.length < PokemonServices.readLimit,
+        );
+      });
+    } else {
+      await Future.delayed(Duration.zero, () async {
         state = HomeState(
           groups: [],
           isInitialized: false,
-          isInitializing: true,
-          user: user,
+          isInitializing: false,
+          user: state.user,
           isMoreLoading: false,
           noMoreAvailable: false,
         );
       });
-      PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(groupAfter: null);
-      if (res.isSuccess) {
-        await Future.delayed(Duration.zero, () {
-          state = HomeState(
-            groups: res.evoGroups!.groups
-                .map((x) => HomeStateGroup(
-                      pokemons: x.pokemons
-                          .map((y) => HomeStateElement(
-                                name: y.name,
-                                type1: y.type1,
-                                type2: y.type2,
-                                imgPath: y.imgPath,
-                              ))
-                          .toList(),
-                      groupId: x.groupID,
-                    ))
-                .toList(),
-            isInitialized: true,
-            isInitializing: false,
-            user: state.user,
-            isMoreLoading: false,
-            noMoreAvailable: res.evoGroups!.groups.length < PokemonServices.readLimit,
-          );
-        });
-      } else {
-        await Future.delayed(Duration.zero, () {
-          state = HomeState(
-            groups: [],
-            isInitialized: false,
-            isInitializing: false,
-            user: state.user,
-            isMoreLoading: false,
-            noMoreAvailable: false,
-          );
-        });
-      }
     }
   }
 
@@ -107,7 +100,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (state.isMoreLoading || state.noMoreAvailable) {
       return;
     }
-    await Future.delayed(Duration.zero, () {
+    await Future.delayed(Duration.zero, () async {
       state = HomeState(
         groups: state.groups,
         isInitialized: true,
@@ -119,7 +112,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     });
     PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(groupAfter: state.groups.last.groupId);
     if (res.isSuccess) {
-      await Future.delayed(Duration.zero, () {
+      await Future.delayed(Duration.zero, () async {
         List<HomeStateGroup> newGroups = [...state.groups];
         newGroups.addAll(res.evoGroups!.groups.map((x) => HomeStateGroup(
               pokemons: x.pokemons
@@ -130,7 +123,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                         imgPath: y.imgPath,
                       ))
                   .toList(),
-              groupId: x.groupID,
+              groupId: x.groupId,
             )));
         state = HomeState(
           groups: newGroups,
@@ -142,7 +135,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         );
       });
     } else {
-      await Future.delayed(Duration.zero, () {
+      await Future.delayed(Duration.zero, () async {
         state = HomeState(
           groups: state.groups,
           isInitialized: false,

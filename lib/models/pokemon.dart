@@ -21,11 +21,11 @@ class Pokemon {
 class PokemonEvoGroup {
   PokemonEvoGroup({
     required this.pokemons,
-    required this.groupID,
+    required this.groupId,
   });
 
   List<Pokemon> pokemons;
-  String groupID;
+  String groupId;
 }
 
 class EvoGroups {

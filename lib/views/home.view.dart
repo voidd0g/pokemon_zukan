@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:pokemon_zukan/constants/routes.dart';
 import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
 import 'package:pokemon_zukan/viewmodels/home.viewmodel.dart';
 
@@ -14,13 +14,25 @@ class HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final states = ref.watch(homeProvider);
-    if (!states.isInitialized && !states.isInitializing) {
-      ref.read(homeProvider.notifier).initialPokemons();
-    } else if (states.isInitialized && states.user == null) {
-      Future.delayed(Duration.zero, () async {
-        Navigator.of(context).pop();
-      });
-    }
+    Future.delayed(Duration.zero, () async {
+      if (await ref.read(homeProvider.notifier).isUserLoggedIn()) {
+        if (!states.isInitialized && !states.isInitializing) {
+          await ref.read(homeProvider.notifier).initialPokemons();
+        }
+      } else {
+        Future.delayed(Duration.zero, () async {
+          if (ModalRoute.of(context)?.canPop == true) {
+            Future.delayed(Duration.zero, () async {
+              Navigator.of(context).pop();
+            });
+          } else {
+            Future.delayed(Duration.zero, () async {
+              Navigator.of(context).pushReplacementNamed(Routes.login);
+            });
+          }
+        });
+      }
+    });
 
     List<Widget> listViewElements = states.groups
         .asMap()
@@ -171,15 +183,19 @@ class HomeView extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                 await ref.read(homeProvider.notifier).logOut();
-                Future.delayed(Duration.zero, () {
-                  Navigator.of(context).pop();
+                Future.delayed(Duration.zero, () async {
+                  if (!(await Navigator.of(context).maybePop())) {
+                    Future.delayed(Duration.zero, () async {
+                      Navigator.of(context).pushNamed(Routes.login);
+                    });
+                  }
                 });
               },
               child: const Icon(Icons.logout),
             ),
           ],
         ),
-        body: !states.isInitialized
+        body: !states.isInitialized || states.user == null
             ? Center(
                 child: SpinKitDancingSquare(
                   color: Colors.blue.shade700,
@@ -193,7 +209,7 @@ class HomeView extends ConsumerWidget {
                   ),
                 ),
               ),
-        floatingActionButton: !states.isInitialized
+        floatingActionButton: !states.isInitialized || states.user == null
             ? const SizedBox.shrink()
             : FloatingActionButton(
                 onPressed: () async {

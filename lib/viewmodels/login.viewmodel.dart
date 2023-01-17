@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_zukan/repos/firebase_services.dart';
 import 'package:pokemon_zukan/viewmodels/states/login.state.dart';
 
-final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) => LoginNotifier());
+final loginProvider = StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) => LoginNotifier());
 
 class LoginNotifier extends StateNotifier<LoginState> {
   LoginNotifier()

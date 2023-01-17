@@ -18,7 +18,7 @@ class PokemonZukan extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ポケモンずかん',
-      initialRoute: Routes.login,
+      initialRoute: Routes.home,
       routes: {
         Routes.login: (context) => const LoginView(),
         Routes.home: (context) => const HomeView(),
