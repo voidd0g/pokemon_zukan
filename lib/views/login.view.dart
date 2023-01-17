@@ -31,6 +31,7 @@ class LoginView extends ConsumerWidget {
             ),
           ),
           centerTitle: true,
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.blue.shade700,
         ),
         body: Center(

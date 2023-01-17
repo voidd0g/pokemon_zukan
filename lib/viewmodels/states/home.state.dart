@@ -31,12 +31,12 @@ class HomeStateElement {
 
 class HomeStateGroup {
   final List<HomeStateElement> pokemons;
-  final String basicName;
+  final String groupId;
   final int index;
 
   const HomeStateGroup({
     required this.pokemons,
-    required this.basicName,
+    required this.groupId,
     this.index = 0,
   });
 
@@ -47,7 +47,7 @@ class HomeStateGroup {
     }
     return HomeStateGroup(
       pokemons: pokemons,
-      basicName: basicName,
+      groupId: groupId,
       index: newIndex,
     );
   }
@@ -59,7 +59,7 @@ class HomeStateGroup {
     }
     return HomeStateGroup(
       pokemons: pokemons,
-      basicName: basicName,
+      groupId: groupId,
       index: newIndex,
     );
   }
@@ -71,11 +71,17 @@ class HomeState {
   final bool isInitializing;
   final User? user;
 
+  final bool isMoreLoading;
+
+  final bool noMoreAvailable;
+
   const HomeState({
     required this.groups,
     required this.isInitialized,
     required this.isInitializing,
     this.user,
+    required this.isMoreLoading,
+    required this.noMoreAvailable,
   });
 
   HomeState updateAt(int index, {bool decrement = false}) {
@@ -86,6 +92,8 @@ class HomeState {
       isInitialized: isInitialized,
       isInitializing: isInitializing,
       user: user,
+      isMoreLoading: isMoreLoading,
+      noMoreAvailable: noMoreAvailable,
     );
   }
 }

@@ -12,6 +12,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
           groups: [],
           isInitialized: false,
           isInitializing: false,
+          isMoreLoading: false,
+          noMoreAvailable: false,
         ));
 
   void revEvolveAt(int index) {
@@ -36,7 +38,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     await FirebaseServices.instance.signOutWithGoogle();
   }
 
-  Future<void> getPokemons({bool force = false}) async {
+  Future<void> initialPokemons() async {
     if (state.isInitializing) {
       return;
     }
@@ -46,6 +48,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         isInitialized: false,
         isInitializing: true,
         user: state.user,
+        isMoreLoading: false,
+        noMoreAvailable: false,
       );
     });
     User? user = (await FirebaseServices.instance.getAuthInstance()).currentUser;
@@ -56,9 +60,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
           isInitialized: false,
           isInitializing: true,
           user: user,
+          isMoreLoading: false,
+          noMoreAvailable: false,
         );
       });
-      PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(force: force);
+      PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(groupAfter: null);
       if (res.isSuccess) {
         await Future.delayed(Duration.zero, () {
           state = HomeState(
@@ -72,12 +78,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 imgPath: y.imgPath,
                               ))
                           .toList(),
-                      basicName: x.groupID,
+                      groupId: x.groupID,
                     ))
                 .toList(),
             isInitialized: true,
             isInitializing: false,
             user: state.user,
+            isMoreLoading: false,
+            noMoreAvailable: res.evoGroups!.groups.length < PokemonServices.readLimit,
           );
         });
       } else {
@@ -87,9 +95,63 @@ class HomeNotifier extends StateNotifier<HomeState> {
             isInitialized: false,
             isInitializing: false,
             user: state.user,
+            isMoreLoading: false,
+            noMoreAvailable: false,
           );
         });
       }
+    }
+  }
+
+  Future<void> getMorePokemons() async {
+    if (state.isMoreLoading || state.noMoreAvailable) {
+      return;
+    }
+    await Future.delayed(Duration.zero, () {
+      state = HomeState(
+        groups: state.groups,
+        isInitialized: true,
+        isInitializing: false,
+        user: state.user,
+        isMoreLoading: true,
+        noMoreAvailable: false,
+      );
+    });
+    PokemonServicesResult res = await PokemonServices.instance.getPokemonEvoGroups(groupAfter: state.groups.last.groupId);
+    if (res.isSuccess) {
+      await Future.delayed(Duration.zero, () {
+        List<HomeStateGroup> newGroups = [...state.groups];
+        newGroups.addAll(res.evoGroups!.groups.map((x) => HomeStateGroup(
+              pokemons: x.pokemons
+                  .map((y) => HomeStateElement(
+                        name: y.name,
+                        type1: y.type1,
+                        type2: y.type2,
+                        imgPath: y.imgPath,
+                      ))
+                  .toList(),
+              groupId: x.groupID,
+            )));
+        state = HomeState(
+          groups: newGroups,
+          isInitialized: true,
+          isInitializing: false,
+          user: state.user,
+          isMoreLoading: false,
+          noMoreAvailable: res.evoGroups!.groups.length < PokemonServices.readLimit,
+        );
+      });
+    } else {
+      await Future.delayed(Duration.zero, () {
+        state = HomeState(
+          groups: state.groups,
+          isInitialized: false,
+          isInitializing: false,
+          user: state.user,
+          isMoreLoading: false,
+          noMoreAvailable: false,
+        );
+      });
     }
   }
 }
