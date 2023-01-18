@@ -12,6 +12,15 @@ class LoginView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final states = ref.watch(loginProvider);
+    if (!states.isInitialized) {
+      Future.delayed(Duration.zero, () async {
+        if (!await ref.read(loginProvider.notifier).isUserLoggedIn()) {
+          await Future.delayed(Duration.zero, () async {
+            await ref.read(loginProvider.notifier).initialized();
+          });
+        }
+      });
+    }
     if (states.isSignedIn) {
       Future.delayed(Duration.zero, () async {
         await showDialog(
@@ -45,7 +54,7 @@ class LoginView extends ConsumerWidget {
                 ],
               );
             });
-        Future.delayed(Duration.zero, () async {
+        await Future.delayed(Duration.zero, () async {
           await Navigator.of(context).pushNamed(Routes.home);
           await ref.read(loginProvider.notifier).loggedOut();
         });
@@ -87,7 +96,7 @@ class LoginView extends ConsumerWidget {
     } else {
       Future.delayed(Duration.zero, () async {
         if (await ref.read(loginProvider.notifier).isUserLoggedIn()) {
-          Future.delayed(Duration.zero, () async {
+          await Future.delayed(Duration.zero, () async {
             await Navigator.of(context).pushNamed(Routes.home);
             await ref.read(loginProvider.notifier).loggedOut();
           });
@@ -111,7 +120,7 @@ class LoginView extends ConsumerWidget {
           backgroundColor: Colors.blue.shade700,
         ),
         body: Center(
-          child: states.isSigningIn
+          child: states.isSigningIn || !states.isInitialized
               ? const SpinKitDualRing(color: Colors.black)
               : states.isSignedIn
                   ? const SizedBox.shrink()

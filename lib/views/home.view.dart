@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:pokemon_zukan/args/detail.args.dart';
 import 'package:pokemon_zukan/constants/routes.dart';
 import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
 import 'package:pokemon_zukan/utils/pokemon_zukan_image_path.dart';
@@ -16,24 +17,28 @@ class HomeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final states = ref.watch(homeProvider);
     Future.delayed(Duration.zero, () async {
-      if (await ref.read(homeProvider.notifier).isUserLoggedIn()) {
-        if (!states.isInitialized && !states.isInitializing) {
-          await ref.read(homeProvider.notifier).initialPokemons();
-        }
-      } else {
-        Future.delayed(Duration.zero, () async {
+      if (!await ref.read(homeProvider.notifier).isUserLoggedIn()) {
+        await Future.delayed(Duration.zero, () async {
           if (ModalRoute.of(context)?.canPop == true) {
-            Future.delayed(Duration.zero, () async {
+            await Future.delayed(Duration.zero, () async {
               Navigator.of(context).pop();
             });
           } else {
-            Future.delayed(Duration.zero, () async {
+            await Future.delayed(Duration.zero, () async {
               Navigator.of(context).pushReplacementNamed(Routes.login);
             });
           }
         });
       }
     });
+
+    if (!states.isInitialized && !states.isInitializing) {
+      Future.delayed(Duration.zero, () async {
+        if (await ref.read(homeProvider.notifier).isUserLoggedIn()) {
+          await ref.read(homeProvider.notifier).initialPokemons();
+        }
+      });
+    }
 
     List<Widget> listViewElements = states.groups
         .asMap()
@@ -47,10 +52,26 @@ class HomeView extends ConsumerWidget {
                   SizedBox(
                     width: 300,
                     height: 300,
-                    child: CachedNetworkImage(
-                      imageUrl: pokemonZukanImagePath(name: entry.value.pokemons[entry.value.index].imgPath),
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
+                    child: GestureDetector(
+                      onTap: () async {
+                        await Future.delayed(Duration.zero, () async {
+                          await Navigator.of(context).pushNamed(
+                            Routes.detail,
+                            arguments: DetailArgs(
+                              pokemonName: entry.value.pokemons[entry.value.index].name,
+                              groupName: entry.value.groupId,
+                              stage: entry.value.pokemons[entry.value.index].stage,
+                              form: entry.value.pokemons[entry.value.index].form,
+                            ),
+                          );
+                          await ref.read(homeProvider.notifier).reloadLikes();
+                        });
+                      },
+                      child: CachedNetworkImage(
+                        imageUrl: pokemonZukanImagePath(name: entry.value.pokemons[entry.value.index].imgPath),
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                     ),
                   ),
@@ -59,15 +80,40 @@ class HomeView extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          entry.value.pokemons[entry.value.index].name,
-                          style: TextStyle(
-                            color: Colors.blue.shade800,
-                            fontFamily: 'MPLUSRounded1c',
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        entry.value.pokemons[entry.value.index].liked
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '💛',
+                                    style: TextStyle(
+                                      color: Colors.redAccent.shade700,
+                                      fontFamily: 'MPLUSRounded1c',
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    entry.value.pokemons[entry.value.index].name,
+                                    style: TextStyle(
+                                      color: Colors.amberAccent.shade700,
+                                      fontFamily: 'MPLUSRounded1c',
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                entry.value.pokemons[entry.value.index].name,
+                                style: TextStyle(
+                                  color: Colors.blue.shade800,
+                                  fontFamily: 'MPLUSRounded1c',
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                         const SizedBox(
                           width: 20.0,
                         ),
@@ -190,79 +236,125 @@ class HomeView extends ConsumerWidget {
           centerTitle: true,
           automaticallyImplyLeading: false,
           backgroundColor: Colors.blue.shade700,
-          actions: [
-            ElevatedButton(
-              onPressed: () async {
-                final bool? isConfirmed = await showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          'ログアウト',
+        ),
+        endDrawer: !states.isInitialized
+            ? SpinKitFadingFour(
+                color: Colors.blue.shade700,
+              )
+            : Drawer(
+                child: ListView(
+                  children: [
+                    DrawerHeader(
+                      child: Center(
+                        child: Text(
+                          states.user!.displayName!,
                           style: TextStyle(
                             color: Colors.blue.shade500,
                             fontFamily: 'MPLUSRounded1c',
-                            fontSize: 20.0,
+                            fontSize: 24.0,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        content: Text(
-                          'ログアウトしますか？',
-                          style: TextStyle(
-                            color: Colors.blue.shade500,
-                            fontFamily: 'MPLUSRounded1c',
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.normal,
-                          ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: () async {
+                          final bool? isConfirmed = await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(
+                                    'ログアウト',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade500,
+                                      fontFamily: 'MPLUSRounded1c',
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    'ログアウトしますか？',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade500,
+                                      fontFamily: 'MPLUSRounded1c',
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(true);
+                                      },
+                                      child: Text(
+                                        'はい',
+                                        style: TextStyle(
+                                          color: Colors.blue.shade500,
+                                          fontFamily: 'MPLUSRounded1c',
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                      child: Text(
+                                        'いいえ',
+                                        style: TextStyle(
+                                          color: Colors.blue.shade500,
+                                          fontFamily: 'MPLUSRounded1c',
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              });
+                          if (isConfirmed == true) {
+                            await Future.delayed(Duration.zero, () async {
+                              Navigator.of(context).pop();
+                            });
+                            await ref.read(homeProvider.notifier).logOut();
+                            await Future.delayed(Duration.zero, () async {
+                              if (ModalRoute.of(context)?.canPop == true) {
+                                await Future.delayed(Duration.zero, () async {
+                                  Navigator.of(context).pop();
+                                });
+                              } else {
+                                await Future.delayed(Duration.zero, () async {
+                                  Navigator.of(context).pushReplacementNamed(Routes.login);
+                                });
+                              }
+                            });
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.logout),
+                            Text(
+                              'ログアウト',
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontFamily: 'MPLUSRounded1c',
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(true);
-                            },
-                            child: Text(
-                              'はい',
-                              style: TextStyle(
-                                color: Colors.blue.shade500,
-                                fontFamily: 'MPLUSRounded1c',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false);
-                            },
-                            child: Text(
-                              'いいえ',
-                              style: TextStyle(
-                                color: Colors.blue.shade500,
-                                fontFamily: 'MPLUSRounded1c',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    });
-                if (isConfirmed == true) {
-                  await ref.read(homeProvider.notifier).logOut();
-                  Future.delayed(Duration.zero, () async {
-                    if (!(await Navigator.of(context).maybePop())) {
-                      Future.delayed(Duration.zero, () async {
-                        Navigator.of(context).pushNamed(Routes.login);
-                      });
-                    }
-                  });
-                }
-              },
-              child: const Icon(Icons.logout),
-            ),
-          ],
-        ),
-        body: !states.isInitialized || states.user == null
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        body: !states.isInitialized || states.isReloading
             ? Center(
                 child: SpinKitDancingSquare(
                   color: Colors.blue.shade700,
@@ -275,14 +367,6 @@ class HomeView extends ConsumerWidget {
                     children: listViewElements,
                   ),
                 ),
-              ),
-        floatingActionButton: !states.isInitialized || states.user == null
-            ? const SizedBox.shrink()
-            : FloatingActionButton(
-                onPressed: () async {
-                  ref.read(homeProvider.notifier).initialPokemons();
-                },
-                child: const Icon(Icons.refresh),
               ),
       ),
     );

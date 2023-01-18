@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_zukan/constants/routes.dart';
+import 'package:pokemon_zukan/views/detail.view.dart';
 import 'package:pokemon_zukan/views/home.view.dart';
 import 'package:pokemon_zukan/views/login.view.dart';
 
@@ -22,6 +23,7 @@ class PokemonZukan extends StatelessWidget {
       routes: {
         Routes.login: (context) => const LoginView(),
         Routes.home: (context) => const HomeView(),
+        Routes.detail: (context) => const DetailView(),
       },
     );
   }

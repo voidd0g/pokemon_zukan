@@ -8,6 +8,7 @@ final loginProvider = StateNotifierProvider.autoDispose<LoginNotifier, LoginStat
 class LoginNotifier extends StateNotifier<LoginState> {
   LoginNotifier()
       : super(const LoginState(
+          isInitialized: false,
           isSigningIn: false,
           isSignedIn: false,
           isFailed: false,
@@ -16,6 +17,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
   Future<void> trySignInWithGoogle() async {
     await Future.delayed(Duration.zero, () {
       state = const LoginState(
+        isInitialized: true,
         isSigningIn: true,
         isSignedIn: false,
         isFailed: false,
@@ -24,6 +26,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
     bool res = await FirebaseServices.instance.trySignInWithGoogle();
     await Future.delayed(Duration.zero, () {
       state = LoginState(
+        isInitialized: true,
         isSigningIn: false,
         isSignedIn: res,
         isFailed: !res,
@@ -36,9 +39,21 @@ class LoginNotifier extends StateNotifier<LoginState> {
     return user != null;
   }
 
+  Future<void> initialized() async {
+    await Future.delayed(Duration.zero, () {
+      state = const LoginState(
+        isInitialized: true,
+        isSigningIn: false,
+        isSignedIn: false,
+        isFailed: false,
+      );
+    });
+  }
+
   Future<void> loggedOut() async {
     await Future.delayed(Duration.zero, () {
       state = const LoginState(
+        isInitialized: true,
         isSigningIn: false,
         isSignedIn: false,
         isFailed: false,
