@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokemon_zukan/repos/firebase_services.dart';
 import 'package:pokemon_zukan/viewmodels/states/login.state.dart';
@@ -9,6 +10,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       : super(const LoginState(
           isSigningIn: false,
           isSignedIn: false,
+          isFailed: false,
         ));
 
   Future<void> trySignInWithGoogle() async {
@@ -16,6 +18,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = const LoginState(
         isSigningIn: true,
         isSignedIn: false,
+        isFailed: false,
       );
     });
     bool res = await FirebaseServices.instance.trySignInWithGoogle();
@@ -23,8 +26,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = LoginState(
         isSigningIn: false,
         isSignedIn: res,
+        isFailed: !res,
       );
     });
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    User? user = (await FirebaseServices.instance.getAuthInstance()).currentUser;
+    return user != null;
   }
 
   Future<void> loggedOut() async {
@@ -32,6 +41,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = const LoginState(
         isSigningIn: false,
         isSignedIn: false,
+        isFailed: false,
       );
     });
   }

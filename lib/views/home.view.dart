@@ -182,14 +182,70 @@ class HomeView extends ConsumerWidget {
           actions: [
             ElevatedButton(
               onPressed: () async {
-                await ref.read(homeProvider.notifier).logOut();
-                Future.delayed(Duration.zero, () async {
-                  if (!(await Navigator.of(context).maybePop())) {
-                    Future.delayed(Duration.zero, () async {
-                      Navigator.of(context).pushNamed(Routes.login);
+                final bool? isConfirmed = await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'ログアウト',
+                          style: TextStyle(
+                            color: Colors.blue.shade500,
+                            fontFamily: 'MPLUSRounded1c',
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: Text(
+                          'ログアウトしますか？',
+                          style: TextStyle(
+                            color: Colors.blue.shade500,
+                            fontFamily: 'MPLUSRounded1c',
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: Text(
+                              'はい',
+                              style: TextStyle(
+                                color: Colors.blue.shade500,
+                                fontFamily: 'MPLUSRounded1c',
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text(
+                              'いいえ',
+                              style: TextStyle(
+                                color: Colors.blue.shade500,
+                                fontFamily: 'MPLUSRounded1c',
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
                     });
-                  }
-                });
+                if (isConfirmed == true) {
+                  await ref.read(homeProvider.notifier).logOut();
+                  Future.delayed(Duration.zero, () async {
+                    if (!(await Navigator.of(context).maybePop())) {
+                      Future.delayed(Duration.zero, () async {
+                        Navigator.of(context).pushNamed(Routes.login);
+                      });
+                    }
+                  });
+                }
               },
               child: const Icon(Icons.logout),
             ),

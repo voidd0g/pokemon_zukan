@@ -14,8 +14,84 @@ class LoginView extends ConsumerWidget {
     final states = ref.watch(loginProvider);
     if (states.isSignedIn) {
       Future.delayed(Duration.zero, () async {
-        await Navigator.of(context).pushNamed(Routes.home);
-        await ref.read(loginProvider.notifier).loggedOut();
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return SimpleDialog(
+                title: Text(
+                  'ログイン成功',
+                  style: TextStyle(
+                    color: Colors.blue.shade500,
+                    fontFamily: 'MPLUSRounded1c',
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'OK',
+                      style: TextStyle(
+                        color: Colors.blue.shade500,
+                        fontFamily: 'MPLUSRounded1c',
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            });
+        Future.delayed(Duration.zero, () async {
+          await Navigator.of(context).pushNamed(Routes.home);
+          await ref.read(loginProvider.notifier).loggedOut();
+        });
+      });
+    } else if (states.isFailed) {
+      Future.delayed(Duration.zero, () async {
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return SimpleDialog(
+                title: Text(
+                  'ログイン失敗',
+                  style: TextStyle(
+                    color: Colors.blue.shade500,
+                    fontFamily: 'MPLUSRounded1c',
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'OK',
+                      style: TextStyle(
+                        color: Colors.blue.shade500,
+                        fontFamily: 'MPLUSRounded1c',
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            });
+      });
+    } else {
+      Future.delayed(Duration.zero, () async {
+        if (await ref.read(loginProvider.notifier).isUserLoggedIn()) {
+          Future.delayed(Duration.zero, () async {
+            await Navigator.of(context).pushNamed(Routes.home);
+            await ref.read(loginProvider.notifier).loggedOut();
+          });
+        }
       });
     }
     return SafeArea(
@@ -43,7 +119,25 @@ class LoginView extends ConsumerWidget {
                       onPressed: () async {
                         await ref.read(loginProvider.notifier).trySignInWithGoogle();
                       },
-                      child: const Icon(Icons.login),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.login),
+                          const SizedBox(
+                            width: 20.0,
+                          ),
+                          Text(
+                            'Googleでログイン',
+                            style: TextStyle(
+                              color: Colors.blue.shade50,
+                              fontFamily: 'MPLUSRounded1c',
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
         ),
       ),
