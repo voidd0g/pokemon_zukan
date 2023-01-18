@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:pokemon_zukan/constants/routes.dart';
 import 'package:pokemon_zukan/utils/pokemon_type_string.dart';
+import 'package:pokemon_zukan/utils/pokemon_zukan_image_path.dart';
 import 'package:pokemon_zukan/viewmodels/home.viewmodel.dart';
 
 class HomeView extends ConsumerWidget {
@@ -47,7 +48,7 @@ class HomeView extends ConsumerWidget {
                     width: 300,
                     height: 300,
                     child: CachedNetworkImage(
-                      imageUrl: 'https://zukan.pokemon.co.jp/zukan-api/up/images/index/${entry.value.pokemons[entry.value.index].imgPath}.png',
+                      imageUrl: pokemonZukanImagePath(name: entry.value.pokemons[entry.value.index].imgPath),
                       placeholder: (context, url) => const Center(
                         child: CircularProgressIndicator(),
                       ),
@@ -71,7 +72,7 @@ class HomeView extends ConsumerWidget {
                           width: 20.0,
                         ),
                         Text(
-                          pokemonTypeToString(entry.value.pokemons[entry.value.index].type1),
+                          pokemonTypeToString(type: entry.value.pokemons[entry.value.index].type1),
                           style: TextStyle(
                             color: Colors.blue.shade800,
                             fontFamily: 'MPLUSRounded1c',
@@ -86,7 +87,7 @@ class HomeView extends ConsumerWidget {
                             : const SizedBox.shrink(),
                         entry.value.pokemons[entry.value.index].type2 != null
                             ? Text(
-                                pokemonTypeToString(entry.value.pokemons[entry.value.index].type2!),
+                                pokemonTypeToString(type: entry.value.pokemons[entry.value.index].type2!),
                                 style: TextStyle(
                                   color: Colors.blue.shade800,
                                   fontFamily: 'MPLUSRounded1c',
@@ -105,30 +106,40 @@ class HomeView extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                  onPressed: () {
-                                    ref.read(homeProvider.notifier).revEvolveAt(entry.key);
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
-                                    shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                                        )),
+                                onPressed: () {
+                                  ref.read(homeProvider.notifier).revEvolveAt(entry.key);
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
+                                  shape: MaterialStateProperty.resolveWith(
+                                    (states) => const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(100),
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.navigate_before)),
+                                ),
+                                child: const Icon(Icons.navigate_before),
+                              ),
                               const SizedBox(
                                 width: 20.0,
                               ),
                               ElevatedButton(
-                                  onPressed: () {
-                                    ref.read(homeProvider.notifier).evolveAt(entry.key);
-                                  },
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
-                                    shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                                        )),
+                                onPressed: () {
+                                  ref.read(homeProvider.notifier).evolveAt(entry.key);
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith((states) => Colors.blue.shade400),
+                                  shape: MaterialStateProperty.resolveWith(
+                                    (states) => const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(100),
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.navigate_next)),
+                                ),
+                                child: const Icon(Icons.navigate_next),
+                              ),
                             ],
                           ),
                         )

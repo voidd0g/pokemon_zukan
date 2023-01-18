@@ -1,6 +1,6 @@
 import 'package:pokemon_zukan/constants/pokemon_type.dart';
 
-String pokemonTypeToString(PokemonType type) {
+String pokemonTypeToString({required PokemonType type}) {
   switch (type) {
     case PokemonType.normal:
       return 'ノーマル';
@@ -41,7 +41,7 @@ String pokemonTypeToString(PokemonType type) {
   }
 }
 
-PokemonType pokemonTypeFromString(String? type) {
+PokemonType pokemonTypeFromString({required String type}) {
   switch (type) {
     case 'ノーマル':
     case 'normal':

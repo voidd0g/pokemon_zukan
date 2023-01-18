@@ -31,8 +31,8 @@ class PokemonServices {
         pokemons.add(
           Pokemon(
             name: pokDoc.get('name'),
-            type1: pokemonTypeFromString(pokDoc.get('type1')),
-            type2: pokDoc.get('type2') == null ? null : pokemonTypeFromString(pokDoc.get('type2')),
+            type1: pokemonTypeFromString(type: pokDoc.get('type1')),
+            type2: pokDoc.get('type2') == null ? null : pokemonTypeFromString(type: pokDoc.get('type2')),
             stage: pokDoc.get('stage'),
             form: pokDoc.get('form'),
             imgPath: pokDoc.get('img_path'),

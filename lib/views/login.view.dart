@@ -114,7 +114,7 @@ class LoginView extends ConsumerWidget {
           child: states.isSigningIn
               ? const SpinKitDualRing(color: Colors.black)
               : states.isSignedIn
-                  ? const Text('OK')
+                  ? const SizedBox.shrink()
                   : ElevatedButton(
                       onPressed: () async {
                         await ref.read(loginProvider.notifier).trySignInWithGoogle();
