@@ -85,14 +85,10 @@ class HomeView extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    '💛',
-                                    style: TextStyle(
-                                      color: Colors.redAccent.shade700,
-                                      fontFamily: 'MPLUSRounded1c',
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Icon(
+                                    Icons.favorite,
+                                    color: Colors.redAccent.shade700,
+                                    size: 18.0,
                                   ),
                                   Text(
                                     entry.value.pokemons[entry.value.index].name,
@@ -208,7 +204,7 @@ class HomeView extends ConsumerWidget {
                     await ref.read(homeProvider.notifier).getMorePokemons();
                   },
                   child: Text(
-                    'Click here to read some more!',
+                    'もっと読み込む',
                     style: TextStyle(
                       color: Colors.blue.shade900,
                       fontFamily: 'MPLUSRounded1c',
